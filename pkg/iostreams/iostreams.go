@@ -15,6 +15,7 @@ import (
 	"github.com/google/shlex"
 	"github.com/mattn/go-colorable"
 	"github.com/mattn/go-isatty"
+	"github.com/muesli/termenv"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -50,6 +51,24 @@ func (s *IOStreams) ColorEnabled() bool {
 
 func (s *IOStreams) ColorSupport256() bool {
 	return s.is256enabled
+}
+
+// This must be called for starting pager as it
+// outputs escape sequence to terminal
+func (s *IOStreams) MarkdownStyle() string {
+	if !s.ColorEnabled() {
+		return "notty"
+	}
+
+	style := os.Getenv("GLAMOUR_STYLE")
+	if style == "" || style == "auto" {
+		if termenv.HasDarkBackground() {
+			return "dark"
+		}
+		return "light"
+	}
+
+	return style
 }
 
 func (s *IOStreams) SetStdinTTY(isTTY bool) {

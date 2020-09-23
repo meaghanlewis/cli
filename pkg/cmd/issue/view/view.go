@@ -89,6 +89,7 @@ func viewRun(opts *ViewOptions) error {
 		return utils.OpenInBrowser(openURL)
 	}
 
+	markdownStyle := opts.IO.MarkdownStyle()
 	err = opts.IO.StartPager()
 	if err != nil {
 		return err
@@ -96,7 +97,7 @@ func viewRun(opts *ViewOptions) error {
 	defer opts.IO.StopPager()
 
 	if opts.IO.IsStdoutTTY() {
-		return printHumanIssuePreview(opts.IO.Out, issue)
+		return printHumanIssuePreview(opts.IO.Out, issue, markdownStyle)
 	}
 	return printRawIssuePreview(opts.IO.Out, issue)
 }
@@ -122,7 +123,7 @@ func printRawIssuePreview(out io.Writer, issue *api.Issue) error {
 	return nil
 }
 
-func printHumanIssuePreview(out io.Writer, issue *api.Issue) error {
+func printHumanIssuePreview(out io.Writer, issue *api.Issue, markdownStyle string) error {
 	now := time.Now()
 	ago := now.Sub(issue.CreatedAt)
 
@@ -158,7 +159,7 @@ func printHumanIssuePreview(out io.Writer, issue *api.Issue) error {
 	// Body
 	if issue.Body != "" {
 		fmt.Fprintln(out)
-		md, err := utils.RenderMarkdown(issue.Body)
+		md, err := utils.RenderMarkdown(issue.Body, markdownStyle)
 		if err != nil {
 			return err
 		}

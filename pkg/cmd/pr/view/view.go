@@ -99,6 +99,7 @@ func viewRun(opts *ViewOptions) error {
 		return utils.OpenInBrowser(openURL)
 	}
 
+	markdownStyle := opts.IO.MarkdownStyle()
 	err = opts.IO.StartPager()
 	if err != nil {
 		return err
@@ -106,7 +107,7 @@ func viewRun(opts *ViewOptions) error {
 	defer opts.IO.StopPager()
 
 	if connectedToTerminal {
-		return printHumanPrPreview(opts.IO.Out, pr)
+		return printHumanPrPreview(opts.IO.Out, pr, markdownStyle)
 	}
 	return printRawPrPreview(opts.IO.Out, pr)
 }
@@ -134,7 +135,7 @@ func printRawPrPreview(out io.Writer, pr *api.PullRequest) error {
 	return nil
 }
 
-func printHumanPrPreview(out io.Writer, pr *api.PullRequest) error {
+func printHumanPrPreview(out io.Writer, pr *api.PullRequest, markdownStyle string) error {
 	// Header (Title and State)
 	fmt.Fprintln(out, utils.Bold(pr.Title))
 	fmt.Fprintf(out, "%s", shared.StateTitleWithColor(*pr))
@@ -172,7 +173,7 @@ func printHumanPrPreview(out io.Writer, pr *api.PullRequest) error {
 	// Body
 	if pr.Body != "" {
 		fmt.Fprintln(out)
-		md, err := utils.RenderMarkdown(pr.Body)
+		md, err := utils.RenderMarkdown(pr.Body, markdownStyle)
 		if err != nil {
 			return err
 		}

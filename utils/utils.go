@@ -29,19 +29,13 @@ func OpenInBrowser(url string) error {
 	return err
 }
 
-func RenderMarkdown(text string) (string, error) {
+func RenderMarkdown(text string, style string) (string, error) {
 	// Glamour rendering preserves carriage return characters in code blocks, but
 	// we need to ensure that no such characters are present in the output.
 	text = strings.ReplaceAll(text, "\r\n", "\n")
 
-	renderStyle := glamour.WithStandardStyle("notty")
-	// TODO: make color an input parameter
-	if isColorEnabled() {
-		renderStyle = glamour.WithEnvironmentConfig()
-	}
-
 	tr, err := glamour.NewTermRenderer(
-		renderStyle,
+		glamour.WithStylePath(style),
 		// glamour.WithBaseURL(""),  // TODO: make configurable
 		// glamour.WithWordWrap(80), // TODO: make configurable
 	)
